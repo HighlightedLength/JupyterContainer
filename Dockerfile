@@ -13,8 +13,6 @@ COPY docker_entrypoint.sh /
 # install ssh server
 RUN apk add --update --no-cache openssh \
     && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config \
-    && adduser -h /home/magistrate -s /bin/sh -D magistrate \
-    && echo -n 'magistrate:default_pass' | chpasswd \
     && echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config \
     && echo -n 'root:default_pass' | chpasswd
 
@@ -39,13 +37,6 @@ RUN apk add gcc python3-dev musl-dev linux-headers \
         /root/.jupyter/jupyter_notebook_config.py \
     && sed -i -e \   
         "s/# c.ServerApp.password = ''/c.ServerApp.password = ''/g" \
-        /root/.jupyter/jupyter_notebook_config.py \
-    && mkdir note
+        /root/.jupyter/jupyter_notebook_config.py
 
 ENTRYPOINT ["/docker_entrypoint.sh"]
-
-    # && jupyter contrib nbextension install --sys-prefix \
-    # && jupyter nbextension enable scratchpad/main --sys-prefix \
-
-#     && sed -i -e "s/# c.LabServerApp.open_browser = False/c.LabServerApp.open_browser = False/g" .jupyter/jupyter_notebook_config.py \
-#     && sed -i -e "s/# c.ServerApp.allow_root = False/# c.ServerApp.allow_root = True/g" \.jupyter/jupyter_notebook_config.py \
