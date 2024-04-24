@@ -1,1 +1,1 @@
-foobar
+This was loaded from the mounted folder.

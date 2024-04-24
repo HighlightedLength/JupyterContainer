@@ -1,6 +1,13 @@
 # pull official base image
 FROM python:3.10.14-alpine
 
+LABEL maintainer="allen.h@outlook.com"
+LABEL description="A container for running jupyter locally"
+LABEL "docker.cmd"="docker run -p 127.0.0.1:8888:8888 -v .\notebook:/root/notebook jupyter-container:latest"
+LABEL url="https://github.com/HighlightedLength/JupyterContainer"
+
+ARG PASS="default_pass"
+
 # This prevents Python from writing out pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -8,20 +15,20 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 EXPOSE 22 8888
-COPY docker_entrypoint.sh /
+COPY docker_entrypoint.sh /tmp/
 
 # install ssh server
 RUN apk add --update --no-cache openssh \
     && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config \
     && echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config \
-    && echo -n 'root:default_pass' | chpasswd
+    && echo -n 'root:${PASS}' | chpasswd
 
 
 # install jupyter
-COPY requirements.txt /
+COPY requirements.txt /tmp/
 RUN apk add gcc python3-dev musl-dev linux-headers \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r requirements.txt \
+    && pip install -r /tmp/requirements.txt \
     && jupyter notebook --generate-config \
     && sed -i -e \
         "s/# c.ServerApp.allow_origin = ''/c.ServerApp.allow_origin = '*'/g" \
@@ -39,4 +46,4 @@ RUN apk add gcc python3-dev musl-dev linux-headers \
         "s/# c.ServerApp.password = ''/c.ServerApp.password = ''/g" \
         /root/.jupyter/jupyter_notebook_config.py
 
-ENTRYPOINT ["/docker_entrypoint.sh"]
+ENTRYPOINT ["/tmp/docker_entrypoint.sh"]
