@@ -16,7 +16,7 @@ else
 fi
 cd /root/notebook
 ip=$(ifconfig eth0 | grep -Eo "inet addr:\d+\.\d+\.\d+\.\d+" | grep -Eo "\d+\.\d+\.\d+\.\d+")
-jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root &
+jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root &
 
 
 # Wait for any process to exit

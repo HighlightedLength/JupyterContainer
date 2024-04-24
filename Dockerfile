@@ -25,24 +25,25 @@ RUN apk add --update --no-cache openssh \
 
 # install jupyter
 COPY requirements.txt /tmp/
-RUN apk add gcc python3-dev musl-dev linux-headers \
+RUN apk add gcc python3-dev musl-dev linux-headers build-base \
     && pip install --upgrade pip setuptools wheel \
+    && apk add py3-scikit-learn \
     && pip install -r /tmp/requirements.txt \
-    && jupyter notebook --generate-config \
+    && jupyter-lab --generate-config \
     && sed -i -e \
         "s/# c.ServerApp.allow_origin = ''/c.ServerApp.allow_origin = '*'/g" \
-        /root/.jupyter/jupyter_notebook_config.py \
+        /root/.jupyter/jupyter_lab_config.py \
     && sed -i -e \
         "s/# c.LabServerApp.open_browser = False/c.LabServerApp.open_browser = False/g" \
-        /root/.jupyter/jupyter_notebook_config.py \
+        /root/.jupyter/jupyter_lab_config.py \
     && sed -i -e \
-        "s/# c.ServerApp.allow_root = False/# c.ServerApp.allow_root = True/g" \
-        /root/.jupyter/jupyter_notebook_config.py \ 
+        "s/# c.ServerApp.allow_root = False/c.ServerApp.allow_root = True/g" \
+        /root/.jupyter/jupyter_lab_config.py \ 
     && sed -i -e \   
         "s/# c.ServerApp.token = '<DEPRECATED>'/c.ServerApp.token = ''/g" \
-        /root/.jupyter/jupyter_notebook_config.py \
+        /root/.jupyter/jupyter_lab_config.py \
     && sed -i -e \   
         "s/# c.ServerApp.password = ''/c.ServerApp.password = ''/g" \
-        /root/.jupyter/jupyter_notebook_config.py
+        /root/.jupyter/jupyter_lab_config.py
 
 ENTRYPOINT ["/tmp/docker_entrypoint.sh"]
