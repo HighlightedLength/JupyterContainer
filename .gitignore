@@ -161,3 +161,7 @@ cython_debug/
 
 # Docker artifacts
 .docker/
+
+# Bash artifacts
+.bash_history
+.lesshst
