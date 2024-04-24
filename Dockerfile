@@ -21,8 +21,7 @@ COPY docker_entrypoint.sh /tmp/
 RUN apk add --update --no-cache openssh \
     && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config \
     && echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config \
-    && echo -n 'root:${PASS}' | chpasswd
-
+    && echo -n "root:$PASS" | chpasswd
 
 # install jupyter
 COPY requirements.txt /tmp/
