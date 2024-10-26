@@ -24,18 +24,30 @@ Make sure that WSL is running.
 ```bash
 docker build -t jupyter_container .
 ```
+  - The `docker build` command only needs to be run once as long as there is no additional external python libraries.
 
+4. Run the docker image while mounting the notebook folder so that it accessible to jupyter
 
-### Running
-Run the docker image while mounting the notebook folder so that it accessible to jupyter
 ```bash
 # run the image as a container while mounting the notebook folder
-docker run -p 127.0.0.1:8888:8888 -v .\notebook:/root/notebook jupyter_container:latest
+docker run --name my_notebook -p 127.0.0.1:8888:8888 -v .\notebook:/root/notebook jupyter_container:latest
 ```
+  - the name of the container can be changed from `my_notebook` to to a more descriptive name
+  - to run multiple notebooks at the same time, change to the port
+    - ex: `-p 127.0.0.1:8500:8888`
+  - the folder available to jupyter can be changed
+    - ex: `-v ~/Documents/my_project:/root/notebook`
+  - Once the docker container is up, access the jupyter lab console at [127.0.0.1:8888/lab](http://127.0.0.1:8888/lab).
+  - To close
+    - exit the browser tabs with the jupyter notebook open
+    - on Powershell, hit `Ctrl-C`
 
-Once the docker container is up, access the jupyter lab console at [127.0.0.1:8888/lab](http://127.0.0.1:8888/lab).
-
-The `docker build` command only needs to be run once as long as there is no additional external python libraries.
+### Subsequent Runs
+1. Open up Rancher
+2. Click on `Containers` on the navigation pane to the left
+3. Check the row with `my_notebook`
+4. Press `Start`
 
 ### Maintainence
-If any new pip packages are installed, please update requirements.txt and rebuild the docker image. 
+- If any new pip packages are installed, please update requirements.txt and rebuild the docker image. 
+- `docker exec -it my_notebook bash` allows for root access
