@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.10.14-alpine
+FROM ubuntu:latest
 
 LABEL maintainer="allen.h@outlook.com"
 LABEL description="A container for running jupyter locally"
@@ -18,17 +18,23 @@ EXPOSE 22 8888
 COPY docker_entrypoint.sh /tmp/
 
 # install ssh server
-RUN apk add --update --no-cache openssh \
-    && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config \
-    && echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config \
-    && echo -n "root:$PASS" | chpasswd
+# setting update time because windows can be silly
+RUN apt -o Acquire::Max-FutureTime=86400 update \
+ && apt install -y openssh-server net-tools \
+ && mkdir /run/sshd \
+ && chmod 755 /run/sshd
+
+# set authentication
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config \
+ && echo "export VISIBLE=now" >> /etc/profile \
+ && echo 'root:default_pass' | chpasswd
 
 # install jupyter
 COPY requirements.txt /tmp/
-RUN apk add gcc python3-dev musl-dev linux-headers build-base \
+RUN apt install -y python3-pip python3-dev libcairo2-dev pkg-config \
     && pip install --upgrade pip setuptools wheel \
-    && apk add py3-scikit-learn \
     && pip install -r /tmp/requirements.txt \
+    && pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu \
     && jupyter-lab --generate-config \
     && sed -i -e \
         "s/# c.ServerApp.allow_origin = ''/c.ServerApp.allow_origin = '*'/g" \
@@ -44,6 +50,7 @@ RUN apk add gcc python3-dev musl-dev linux-headers build-base \
         /root/.jupyter/jupyter_lab_config.py \
     && sed -i -e \   
         "s/# c.ServerApp.password = ''/c.ServerApp.password = ''/g" \
-        /root/.jupyter/jupyter_lab_config.py
+        /root/.jupyter/jupyter_lab_config.py \
+    && echo "c.FileContentsManager.delete_to_trash = False" >> /root/.jupyter/jupyter_lab_config.py
 
-ENTRYPOINT ["/tmp/docker_entrypoint.sh"]
+ENTRYPOINT [ "/tmp/docker_entrypoint.sh" ]
