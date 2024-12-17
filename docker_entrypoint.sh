@@ -20,7 +20,7 @@ jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root &
 
 
 # Wait for any process to exit
-wait -n
+wait
 
 # Exit with status of process that exited first
 exit $?

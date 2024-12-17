@@ -16,6 +16,7 @@ ENV PYTHONUNBUFFERED 1
 
 EXPOSE 22 8888
 COPY docker_entrypoint.sh /tmp/
+RUN chmod 775 /tmp/docker_entrypoint.sh
 
 # install ssh server
 # setting update time because windows can be silly
@@ -31,7 +32,13 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh
 
 # install jupyter
 COPY requirements.txt /tmp/
-RUN apt install -y python3-pip python3-dev libcairo2-dev pkg-config \
+RUN apt update \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get -qq -y install \
+    python3-pip python3-dev libcairo2-dev \
+    pkg-config texlive-xetex texlive-fonts-recommended \
+    texlive-plain-generic texlive texlive-latex-extra \
+    pandoc \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r /tmp/requirements.txt \
     && pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu \

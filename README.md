@@ -48,6 +48,8 @@ docker run --name my_notebook -p 127.0.0.1:8888:8888 -v .\notebook:/root/noteboo
 3. Check the row with `my_notebook`
 4. Press `Start`
 
+Alternatively, run `docker start my_notebook` from Powershell
+
 ### Maintainence
 - If any new pip packages are installed, please update requirements.txt and rebuild the docker image. 
 - `docker exec -it my_notebook bash` allows for root access
